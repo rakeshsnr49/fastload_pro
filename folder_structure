@@ -1,0 +1,14 @@
+fast-load-pro/
+├── public/
+│   └── index.html
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── routes/
+│   ├── services/
+│   ├── App.jsx
+│   └── main.jsx
+├── .env
+├── package.json
+└── vite.config.js

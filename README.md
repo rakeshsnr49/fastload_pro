@@ -33,4 +33,20 @@ uploads/
 
 
 > Server runs at: http://localhost:5000
+# FastLoad Pro – Part 5
+This module enables ultra-fast file uploading with preview, secure backend storage, and ready API integration.
+
+### 📦 Tech Stack
+- React + TailwindCSS (Frontend)
+- Node.js + Express + Multer (Backend)
+- MongoDB (Optional – for metadata)
+
+### 🚀 Quick Start
+
+1. Clone this repo
+2. `cd server && npm install && node index.js`
+3. `cd frontend && npm install && npm run dev`
+4. Upload files from the React interface
+
+
 

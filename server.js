@@ -1,47 +1,39 @@
-const express = require('express');
-const multer = require('multer');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const File = require('./models/File');
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const cors = require("cors");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/fastloadpro', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("MongoDB connected"));
+const upload = multer({ dest: "temp_chunks/" });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+app.post("/upload-chunk", upload.single("chunk"), async (req, res) => {
+  const { index, fileName, totalChunks } = req.body;
+  const chunkPath = `temp_chunks/${fileName}-chunk-${index}`;
+  fs.renameSync(req.file.path, chunkPath);
 
-app.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    const { originalname, mimetype, size } = req.file;
+  const uploadedChunks = fs
+    .readdirSync("temp_chunks")
+    .filter((f) => f.startsWith(fileName));
 
-    const newFile = new File({
-      name: originalname,
-      type: mimetype,
-      size,
-      uploadedAt: new Date(),
-    });
+  if (uploadedChunks.length == totalChunks) {
+    const writeStream = fs.createWriteStream(`uploads/${fileName}`);
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = fs.readFileSync(`temp_chunks/${fileName}-chunk-${i}`);
+      writeStream.write(chunk);
+    }
+    writeStream.end();
 
-    await newFile.save();
-
-    res.status(200).json({ success: true, message: 'File metadata saved', file: newFile });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Upload failed', error: error.message });
+    uploadedChunks.forEach((f) => fs.unlinkSync(`temp_chunks/${f}`));
+    return res.send("File assembled ✅");
   }
+
+  res.send("Chunk received");
 });
 
-app.get('/files', async (req, res) => {
-  try {
-    const files = await File.find().sort({ uploadedAt: -1 });
-    res.status(200).json({ success: true, files });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
+app.listen(5000, () => {
+  console.log("🚀 Server running on http://localhost:5000");
 
-app.listen(5000, () => console.log('Server running on port 5000'));

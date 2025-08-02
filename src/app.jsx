@@ -1,55 +1,55 @@
 import React from "react";
-import UploadForm from "./components/UploadForm";
-import { Toaster } from "react-hot-toast";
+import UploadDashboard from "./components/UploadDashboard";
 
-export default function App() {
+function App() {
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <Toaster />
-      <h1 className="text-3xl font-bold mb-4">FastLoad Pro – Part 5</h1>
-      <UploadForm />
-    </main>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">FastLoad Pro - Upload Dashboard</h1>
+      <UploadDashboard />
+    </div>
   );
 }
 
-/src/components/UploadForm.jsx
+export default App;
+
+/frontend/src/components/UploadDashboard.jsx
 
 import React, { useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
 
-export default function UploadForm() {
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
+const UploadDashboard = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+    setUploadStatus("");
+  };
 
   const handleUpload = async () => {
-    if (!file) return toast.error("कृपया एक फ़ाइल चुनें");
+    if (!selectedFile) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", selectedFile);
 
     try {
-      setUploading(true);
-      const res = await axios.post("http://localhost:5000/api/upload", formData);
-      toast.success("अपलोड सफल ✅");
-      console.log(res.data);
+      const response = await axios.post("http://localhost:5000/api/upload", formData);
+      setUploadStatus("Upload successful!");
     } catch (err) {
-      toast.error("अपलोड असफल ❌");
-    } finally {
-      setUploading(false);
+      setUploadStatus("Upload failed.");
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow w-full max-w-md mx-auto">
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-      <button
-        onClick={handleUpload}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        disabled={uploading}
-      >
-        {uploading ? "अपलोड हो रहा है..." : "अपलोड करें"}
+    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4">
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleUpload} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Upload
       </button>
+      {uploadStatus && <p>{uploadStatus}</p>}
     </div>
   );
-}
+};
+
+export default UploadDashboard;
+

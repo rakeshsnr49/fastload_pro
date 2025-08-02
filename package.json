@@ -2,6 +2,8 @@
   "name": "fast-load-pro",
   "version": "1.0.0",
   "scripts": {
+    "start": "react-scripts start"
+    "builds": "react -scripts build"
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
